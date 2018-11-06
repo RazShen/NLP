@@ -1,3 +1,3 @@
 import MLETrain as train
 
-print(train.getQ("NN", "CC", "RP"))
+print(train.get_q("NN", "CC", "RP"))
