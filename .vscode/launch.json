@@ -10,14 +10,15 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["ass1-tagger-train", "q.mle", "e.mle"],
-            "cwd": "${workspaceFolder}/ass1/data"
+            "args": ["ass1-tagger-test-input", "q.mle", "e.mle", "output", "extra"],
+            "cwd": "${workspaceFolder}/ass1/data",
+            "stopOnEntry": true
         },
         {
             "name": "Python: Attach",
             "type": "python",
             "request": "attach",
-            "port": 5678,
+            "port": 5690,
             "host": "localhost"
         },
         {
