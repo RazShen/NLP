@@ -12,15 +12,19 @@ extra_file = sys.argv[5]
 
 
 def get_top_score_tag(x, t1, t2):
-    top_score_tag = None
+    top_score_tag = mle.q_ones_c.keys()[0][0]
     max_score = 0
     for tag in mle.q_ones_c:
-        q_score = mle.get_q(t2, t1, tag) #t2 = a, t1 = b, tag =c
-        e_score = mle.get_e(x, tag)
-        temp_score = q_score + e_score
+        t = tag[0]
+        if type(t) == tuple:
+            x=5
+            pass
+        q_score = mle.get_q(t2, t1, t) #t2 (y_i-2) = a, t1(y_i-1) = b, tag =c
+        e_score = mle.get_e(x, t)
+        temp_score = q_score * e_score
         if temp_score > max_score:
             max_score = temp_score
-            top_score_tag = tag
+            top_score_tag = t
     return top_score_tag
 
 
@@ -29,13 +33,11 @@ def greedy_tagger():
     with open(file_to_tag, 'r') as f:
         for line in f:
             word_tag = []
-            prev1 = None
-            prev2 = None
+            prev1 = "STR"
+            prev2 = "STR"
             words_in_line = line.strip('\n').strip().split(" ")
             for word in words_in_line:
-                t = get_top_score_tag(word, prev2, prev1)
-                if t is None:
-                    t = "DT"
+                t = get_top_score_tag(word, prev1, prev2)
                 word_tag.append((word, t))
                 temp = prev1
                 prev1 = t

@@ -1,7 +1,6 @@
 import sys
 from collections import Counter
 
-
 total_words_c = 0
 e_mle_c = Counter()
 q_triplet_c = Counter()
@@ -28,8 +27,8 @@ def main():
 
     with open(data, 'r') as learn_data_file:
         for line in learn_data_file:
-            prev1 = None
-            prev2 = None
+            prev1 = "STR"
+            prev2 = "STR"
             word_slash_tag = line.strip('\n').strip().split(" ")
             for t in word_slash_tag:
                 total_words_c += 1
@@ -38,10 +37,8 @@ def main():
                     word, tag = t[:k], t[k + 1:]
                     e_mle_c[(word, tag)] += 1
                     q_ones_c[(tag,)] += 1
-                    if prev1 is not None:
-                        q_pairs_c[(prev1, tag)] += 1
-                    if prev2 is not None:
-                        q_triplet_c[(prev2, prev1, tag)] += 1
+                    q_pairs_c[(prev1, tag)] += 1
+                    q_triplet_c[(prev2, prev1, tag)] += 1
                     temp = prev1
                     prev1 = tag
                     prev2 = temp
@@ -81,11 +78,11 @@ def init_counters(e_mle_file, q_mle_file):
             value = int(value)
             tags_tuple = tuple(tags.split(" "))
             if len(tags_tuple) == 1:
-                q_ones_c[tags] = value
+                q_ones_c[tags_tuple] = value
             elif len(tags_tuple) == 2:
-                q_pairs_c[tags] = value
+                q_pairs_c[tags_tuple] = value
             elif len(tags_tuple) == 3:
-                q_triplet_c[tags] = value
+                q_triplet_c[tags_tuple] = value
 
 
 def write_counter_to_file(counter, file_write, flag):
@@ -94,39 +91,38 @@ def write_counter_to_file(counter, file_write, flag):
             tag = " ".join(t)
             f.write(tag + "\t" + str(val) + "\n")
 
-"""
-    # t1 =a
-    # t2 = b
-    # t3 = c
-"""
-def get_q(t1, t2, t3):
 
+def get_q(t1, t2, t3):
+    """
+    :param t1: a
+    :param t2: b
+    :param t3: c
+    :return: probabilities
+    """
     # deal with start in t2 and in t3
-    if t1 is None and t2 is None:
-        t1 = "NNP"
-        t2 = "DT"
-    if t2 is None:
-        t2 = "NNP"
-    denominator_t1_t2 = q_pairs_c[(t1, t2)]
-    denominator_t_2 = q_ones_c[(t2,)]
+    denominator_t1_t2 = float(q_pairs_c[(t1, t2)])
+    denominator_t_2 = float(q_ones_c[(t2,)])
     first_fraction = 0
     second_fraction = 0
     third_fraction = 0
 
     if denominator_t1_t2 > 0:
-        first_fraction = 1.0 * (q_triplet_c[(t1, t2, t3)]) / denominator_t1_t2
+        first_fraction = float(q_triplet_c[(t1, t2, t3)]) / denominator_t1_t2
     if denominator_t_2 > 0:
-        second_fraction = 1.0 * (q_pairs_c[(t2, t3)]) / denominator_t_2
+        second_fraction = float(q_pairs_c[(t2, t3)]) / denominator_t_2
     if total_words_c > 0:
-        third_fraction = 1.0 *(q_ones_c[(t3,)]) / total_words_c
+        third_fraction = float(q_ones_c[(t3,)]) / total_words_c
     return lambda_1 * first_fraction + lambda_2 * second_fraction + lambda_3 * third_fraction
 
 
 def get_e(word, tag):
-    if q_ones_c[(tag,)] == 0:
-        return 0
-    else:
-        return e_mle_c[(word, tag)] / q_ones_c[(tag,)]
+    if q_ones_c[(tag,)] ==0:
+        print tag
+        print q_ones_c[tag]
+        print "cushilirabak"
+        raw_input("enter bitch:!!!")
+        return 0.3
+    return float(e_mle_c[(word, tag)]) / q_ones_c[(tag,)]
 
 
 if __name__ == '__main__':
