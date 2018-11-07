@@ -15,7 +15,7 @@ def get_top_score_tag(x, t1, t2):
     top_score_tag = None
     max_score = 0
     for tag in mle.q_ones_c:
-        q_score = mle.get_q(tag, t1, t2)
+        q_score = mle.get_q(t2, t1, tag) #t2 = a, t1 = b, tag =c
         e_score = mle.get_e(x, tag)
         temp_score = q_score + e_score
         if temp_score > max_score:

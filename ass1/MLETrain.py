@@ -94,15 +94,19 @@ def write_counter_to_file(counter, file_write, flag):
             tag = " ".join(t)
             f.write(tag + "\t" + str(val) + "\n")
 
-
+"""
+    # t1 =a
+    # t2 = b
+    # t3 = c
+"""
 def get_q(t1, t2, t3):
 
     # deal with start in t2 and in t3
-    if t2 is None and t3 is None:
+    if t1 is None and t2 is None:
+        t1 = "NNP"
+        t2 = "DT"
+    if t2 is None:
         t2 = "NNP"
-        t3 = "DT"
-    if t3 is None:
-        t3 = "NNP"
     denominator_t1_t2 = q_pairs_c[(t1, t2)]
     denominator_t_2 = q_ones_c[(t2,)]
     first_fraction = 0
@@ -115,7 +119,6 @@ def get_q(t1, t2, t3):
         second_fraction = 1.0 * (q_pairs_c[(t2, t3)]) / denominator_t_2
     if total_words_c > 0:
         third_fraction = 1.0 *(q_ones_c[(t3,)]) / total_words_c
-
     return lambda_1 * first_fraction + lambda_2 * second_fraction + lambda_3 * third_fraction
 
 
