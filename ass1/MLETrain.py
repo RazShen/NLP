@@ -6,15 +6,18 @@ e_mle_c = Counter()
 q_triplet_c = Counter()
 q_pairs_c = Counter()
 q_ones_c = Counter()
+famous_suffix_and_tag = {}
+famous_prefix_and_tag = {}
+famous_suffix = []
+famous_prefix = []
 
-lambda_1 = 0.5
-lambda_2 = 0.3
-lambda_3 = 0.2
+lambda_1 = 0.6
+lambda_2 = 0.25
+lambda_3 = 0.15
 
 
 def main():
     global e_mle_c, q_pairs_c, q_triplet_c, q_ones_c, total_words_c
-
     total_words_c = 0
     e_mle_c = Counter()
     q_triplet_c = Counter()
@@ -48,6 +51,67 @@ def main():
     write_counter_to_file(q_ones_c, q_mle, 'w')
     write_counter_to_file(q_pairs_c, q_mle, 'a')
     write_counter_to_file(q_triplet_c, q_mle, 'a')
+
+
+def get_e_score_for_unseen(x):
+    global famous_prefix_and_tag, famous_suffix_and_tag
+    for suffix in famous_suffix_and_tag:
+        if x.endswith(suffix):
+            return famous_suffix_and_tag[suffix]
+    for prefix in famous_prefix_and_tag:
+        if x.startswith(prefix):
+            return famous_prefix_and_tag[prefix]
+    return max(q_ones_c, key=q_ones_c.get)
+
+
+def init_signature_tags_dicts(e_mle_file):
+    global famous_prefix_and_tag, famous_suffix_and_tag, famous_suffix, famous_prefix
+
+    famous_suffix = ["able", "ible", "al", "ial", "ed", "en", "er", "est",
+                     "ful", "ic", "ing", "ion", "tion", "tions", "el",
+                     "ty", "ive", "less", "ly", "ment", "ments", "ian",
+                     "ness", "out", "eous", "s", "y", "tial", "ent", "th"]
+    famous_prefix = ["anti", "de", "dis", "en", "em", "fore", "in",
+                     "im", "inter", "mid", "mis", "non", "over",
+                     "pre", "re", "semi", "sub", "super", "trans",
+                     "un", "under"]
+
+    famous_suffix.sort(key=len)
+    famous_suffix.reverse()
+    famous_prefix.sort(key=len)
+    famous_prefix.reverse()
+    famous_suffix_and_tag = {}
+    famous_prefix_and_tag = {}
+
+    for suffix in famous_suffix:
+        with open(e_mle_file, 'r') as e_mle_learned_file:
+            tag_value = Counter()
+            for line in e_mle_learned_file:
+                line = line.strip("\n")
+                if line == "":
+                    continue
+                word_and_tag, value = line.split("\t")
+                word, tag = word_and_tag.split(" ")
+                value = int(value)
+                if str(word).endswith(suffix):
+                    tag_value[tag] = value
+        if tag_value:
+            famous_suffix_and_tag[suffix] = max(tag_value, key=tag_value.get)
+
+    for prefix in famous_prefix:
+        with open(e_mle_file, 'r') as e_mle_learned_file:
+            tag_value = Counter()
+            for line in e_mle_learned_file:
+                line = line.strip("\n")
+                if line == "":
+                    continue
+                word_and_tag, value = line.split("\t")
+                word, tag = word_and_tag.split(" ")
+                value = int(value)
+                if str(word).startswith(prefix):
+                    tag_value[tag] = value
+        if tag_value:
+            famous_prefix_and_tag[prefix] = max(tag_value, key=tag_value.get)
 
 
 def init_counters(e_mle_file, q_mle_file):
@@ -116,13 +180,9 @@ def get_q(t1, t2, t3):
 
 
 def get_e(word, tag):
-    if q_ones_c[(tag,)] ==0:
-        print tag
-        print q_ones_c[tag]
-        print "cushilirabak"
-        raw_input("enter bitch:!!!")
-        return 0.3
     return float(e_mle_c[(word, tag)]) / q_ones_c[(tag,)]
+
+
 
 
 if __name__ == '__main__':
